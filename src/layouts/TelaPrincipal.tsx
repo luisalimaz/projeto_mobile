@@ -1,27 +1,38 @@
-import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { PrincipalProps } from '../navigation/HomeNavigator';
-import { styles } from '../styles/styles';
-import Exemplo01 from '../components/Exemplo01';
-import Exemplo1 from '../components/Exemplo1';
-import Exemplo05_Text from '../components/Exemplo05_Text';
-import Exemplo06_TextInput from '../components/Exemplo06_TextInput';
-import Exemplo07_Image from '../components/Exemplo07_Image';
+// layouts/TelaPrincipal.tsx
+import React from 'react';
+import { View, Text, Pressable } from 'react-native';
+import { PrincipalProps } from '../navigation/HomeNavigator'; // Importa a tipagem de navegação
+import { styles } from '../styles/styles'; // Estilos externos
 
-//Componente chamado TelaPrincipal que recebe 
-//PrincipalProps 
-//como parametro e constrói uma View com o componente 
-//HelloWorld e Exemplo1 dentro
-const TelaPrincipal = (props: PrincipalProps) => {
-  
+const TelaPrincipal = ({ navigation }: PrincipalProps) => {
   return (
-    <View
-      style={[styles.tela]}>
-        <Exemplo07_Image/>
-        {/* <Exemplo1/> */}
+    <View style={styles.tela}>
+      <Text style={styles.titulo}>Tela Principal</Text>
+
+  
+
+
+      <Pressable style={styles.botao} onPress={() => navigation.navigate('TelaCadProduto')}>
+        <Text style={styles.texto_botao}>Cadastro de Produtos</Text>
+      </Pressable>
+
+      <Pressable style={styles.botao} onPress={() => navigation.navigate('TelaListaProdutos')}>
+        <Text style={styles.texto_botao}>Lista de Produtos</Text>
+      </Pressable>
+
+      <Pressable style={styles.botao} onPress={() => navigation.navigate('TelaCadCategoria')}>
+        <Text style={styles.texto_botao}>Cadastro de Categorias</Text>
+      </Pressable>
+
+      <Pressable style={styles.botao} onPress={() => navigation.navigate('TelaCadFornecedor')}>
+        <Text style={styles.texto_botao}>Cadastro de Fornecedores</Text>
+      </Pressable>
+
+      <Pressable style={styles.botao} onPress={() => navigation.navigate('TelaCadVenda')}>
+        <Text style={styles.texto_botao}>Cadastro de Vendas</Text>
+      </Pressable>
     </View>
   );
-}
+};
 
-//exportando o componente TelaPrincipal para ficar visível para outros arquivos
 export default TelaPrincipal;
