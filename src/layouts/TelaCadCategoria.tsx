@@ -1,138 +1,163 @@
-import React, { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, TextInput, View, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import firestore from "@react-native-firebase/firestore";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import {   CadastroCategoriaProps } from "../navigation/HomeNavigator";
 
+const categoriasFixas = ["Maquiagem", "Perfume", "Skincare"];
 
-const TelaCadCategoria = (props:CadastroCategoriaProps) => {
-  const [nome, setNome] = useState("");
-  const [descricao, setDescricao] = useState("");
+const TelaCategoriasProdutos = () => {
+  const [categoriaSelecionada, setCategoriaSelecionada] = useState<string | null>(null);
+  const [produtos, setProdutos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  function verificarCampos() {
-    if (!nome.trim()) {
-      Alert.alert("Nome em branco", "Digite um nome para a categoria.");
-      return false;
+  useEffect(() => {
+    if (categoriaSelecionada) {
+      setLoading(true);
+      const unsubscribe = firestore()
+        .collection("produtos")
+        .where("categoria", "==", categoriaSelecionada)
+        .onSnapshot(
+          (querySnapshot) => {
+            const listaProdutos: any[] = [];
+            querySnapshot.forEach((doc) => {
+              listaProdutos.push({ id: doc.id, ...doc.data() });
+            });
+            setProdutos(listaProdutos);
+            setLoading(false);
+          },
+          (error) => {
+            console.log(error);
+            setLoading(false);
+          }
+        );
+      return () => unsubscribe();
     }
-    if (!descricao.trim()) {
-      Alert.alert("Descrição em branco", "Digite uma descrição.");
-      return false;
-    }
-    return true;
-  }
-
-  function cadastrarCategoria() {
-    if (!verificarCampos()) return;
-
-    const categoria = {
-      nome,
-      descricao,
-    };
-
-    firestore()
-      .collection("categorias")
-      .add(categoria)
-      .then(() => {
-        Alert.alert("Categoria cadastrada", "Dados gravados com sucesso.");
-        props.navigation.goBack();
-      })
-      .catch((error) => {
-        Alert.alert("Erro ao cadastrar", String(error));
-      });
-  }
-
-  function cancelarCadastro() {
-    setNome("");
-    setDescricao("");
-  }
-
-  const urlImagem = "https://cdn-icons-png.flaticon.com/512/990/990276.png";
+  }, [categoriaSelecionada]);
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: urlImagem }} style={styles.imagem} />
-      <Text style={styles.titulo}>Cadastro de Categoria</Text>
+      <Text style={styles.titulo}>Escolha a Categoria</Text>
 
-      <Text style={styles.label}>Nome da categoria:</Text>
-      <TextInput
-        value={nome}
-        onChangeText={setNome}
-        placeholder="Ex: Maquiagem"
-        style={styles.input}
-      />
-
-      <Text style={styles.label}>Descrição:</Text>
-      <TextInput
-        value={descricao}
-        onChangeText={setDescricao}
-        placeholder="Descreva a categoria"
-        style={styles.input}
-      />
-
-      <View style={styles.buttonsContainer}>
-        <Pressable style={styles.botaoCadastrar} onPress={cadastrarCategoria}>
-          <Text style={styles.textoBotao}>Cadastrar</Text>
-        </Pressable>
-        <Pressable style={styles.botaoCancelar} onPress={cancelarCadastro}>
-          <Text style={styles.textoBotao}>Cancelar</Text>
-        </Pressable>
+      <View style={styles.botoesContainer}>
+        {categoriasFixas.map((cat) => (
+          <Pressable
+            key={cat}
+            style={[
+              styles.botaoCategoria,
+              categoriaSelecionada === cat && styles.botaoSelecionado,
+            ]}
+            onPress={() => setCategoriaSelecionada(cat)}
+          >
+            <Text
+              style={[
+                styles.textoBotao,
+                categoriaSelecionada === cat && styles.textoSelecionado,
+              ]}
+            >
+              {cat}
+            </Text>
+          </Pressable>
+        ))}
       </View>
+
+      {categoriaSelecionada && (
+        <View style={styles.listaContainer}>
+          <Text style={styles.subtitulo}>Produtos de {categoriaSelecionada}:</Text>
+          {loading ? (
+            <ActivityIndicator size="large" color="#d81b60" />
+          ) : produtos.length === 0 ? (
+            <Text style={styles.semProdutos}>Nenhum produto encontrado.</Text>
+          ) : (
+            <FlatList
+              data={produtos}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.produtoItem}>
+                  <Text style={styles.nomeProduto}>{item.nome}</Text>
+                  <Text style={styles.descricaoProduto}>Descrição: {item.descricao}</Text>
+                  <Text style={styles.precoProduto}>Preço: R$ {item.preco.toFixed(2)}</Text>
+                  <Text style={styles.estoqueProduto}>Estoque: {item.estoque}</Text>
+                </View>
+              )}
+            />
+          )}
+        </View>
+      )}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: "#f4f4f4",
-    justifyContent: "center",
-  },
-  imagem: {
-    width: 100,
-    height: 100,
-    alignSelf: "center",
-    marginBottom: 20,
-  },
+  container: { flex: 1, padding: 20, backgroundColor: "#fce4ec" },
   titulo: {
-    fontSize: 24,
+    fontSize: 26,
     fontWeight: "bold",
     textAlign: "center",
     marginBottom: 20,
+    color: "#ad1457",
   },
-  label: {
-    fontSize: 16,
-    marginBottom: 8,
+  botoesContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: 20,
   },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
+  botaoCategoria: {
+    backgroundColor: "#f8bbd0",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 15,
-    paddingLeft: 10,
-    backgroundColor: "#fff",
+    borderColor: "#ec407a",
   },
-  buttonsContainer: {
-    marginTop: 20,
-  },
-  botaoCadastrar: {
-    backgroundColor: "#4CAF50",
-    paddingVertical: 12,
-    borderRadius: 5,
-    marginBottom: 10,
-  },
-  botaoCancelar: {
-    backgroundColor: "#F44336",
-    paddingVertical: 12,
-    borderRadius: 5,
+  botaoSelecionado: {
+    backgroundColor: "#c2185b",
+    borderColor: "#ad1457",
   },
   textoBotao: {
-    color: "#fff",
-    textAlign: "center",
     fontWeight: "bold",
+    color: "#880e4f",
     fontSize: 16,
   },
+  textoSelecionado: {
+    color: "#fff",
+  },
+  listaContainer: { flex: 1 },
+  subtitulo: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    color: "#6a1b9a",
+  },
+  semProdutos: {
+    fontStyle: "italic",
+    color: "#8e24aa",
+    textAlign: "center",
+    marginTop: 20,
+  },
+  produtoItem: {
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 10,
+    marginBottom: 12,
+    borderLeftWidth: 6,
+    borderLeftColor: "#ab47bc",
+    elevation: 3,
+  },
+  nomeProduto: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#6a1b9a",
+    marginBottom: 4,
+  },
+  descricaoProduto: { color: "#555", marginBottom: 2 },
+  precoProduto: { color: "#d81b60", fontWeight: "bold" },
+  estoqueProduto: { color: "#7b1fa2" },
 });
 
-export default TelaCadCategoria;
+export default TelaCategoriasProdutos;

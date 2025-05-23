@@ -15,9 +15,8 @@ import TelaCadCategoria from "../layouts/TelaCadCategoria";
 import TelaCadFornecedor from "../layouts/TelaCadFornecedor";
 
 // Telas de venda
-import TelaCadVenda from "../layouts/TelaCadVenda";
 
-// Define quais as telas e os parâmetros de cada tela
+// Define todas as rotas e os parâmetros esperados por cada uma
 type RootStackParamList = {
   TelaPrincipal: undefined;
   TelaCadProduto: undefined;
@@ -25,13 +24,12 @@ type RootStackParamList = {
   TelaDetalhesProduto: { produtoId: string };
   TelaCadCategoria: undefined;
   TelaCadFornecedor: undefined;
-  TelaCadVenda: undefined;
 };
 
-// Cria a Stack (navegação em pilha)
+// Criação da stack de navegação
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-// Cria o navegador da pilha
+// Componente principal de navegação
 const HomeNavigator = () => {
   return (
     <Stack.Navigator
@@ -44,29 +42,25 @@ const HomeNavigator = () => {
       <Stack.Screen name="TelaDetalhesProduto" component={TelaDetalhesProduto} />
       <Stack.Screen name="TelaCadCategoria" component={TelaCadCategoria} />
       <Stack.Screen name="TelaCadFornecedor" component={TelaCadFornecedor} />
-      <Stack.Screen name="TelaCadVenda" component={TelaCadVenda} />
     </Stack.Navigator>
   );
 };
 
-// Tipagens para props de navegação
-type PrincipalProps = NativeStackScreenProps<RootStackParamList, 'TelaPrincipal'>;
-type CadastroProdutoProps = NativeStackScreenProps<RootStackParamList, 'TelaCadProduto'>;
-type ListaProdutosProps = NativeStackScreenProps<RootStackParamList, 'TelaListaProdutos'>;
-type DetalhesProdutoProps = NativeStackScreenProps<RootStackParamList, 'TelaDetalhesProduto'>;
-type CadastroCategoriaProps = NativeStackScreenProps<RootStackParamList, 'TelaCadCategoria'>;
-type CadastroFornecedorProps = NativeStackScreenProps<RootStackParamList, 'TelaCadFornecedor'>;
-type CadastroVendaProps = NativeStackScreenProps<RootStackParamList, 'TelaCadVenda'>;
-
+// Tipagens para props de navegação de cada tela
+type PrincipalProps = NativeStackScreenProps<RootStackParamList, "TelaPrincipal">;
+type CadastroProdutoProps = NativeStackScreenProps<RootStackParamList, "TelaCadProduto">;
+type ListaProdutosProps = NativeStackScreenProps<RootStackParamList, "TelaListaProdutos">;
+type DetalhesProdutoProps = NativeStackScreenProps<RootStackParamList, "TelaDetalhesProduto">;
+type CadastroCategoriaProps = NativeStackScreenProps<RootStackParamList, "TelaCadCategoria">;
+type CadastroFornecedorProps = NativeStackScreenProps<RootStackParamList, "TelaCadFornecedor">;
+// Exportações
 export default HomeNavigator;
 
-// Exporta os tipos
 export type {
   PrincipalProps,
   CadastroProdutoProps,
   ListaProdutosProps,
   DetalhesProdutoProps,
   CadastroCategoriaProps,
-  CadastroFornecedorProps,
-  CadastroVendaProps
+  CadastroFornecedorProps
 };
